@@ -1,0 +1,21 @@
+{
+    "name": "brightmachine/rapper",
+    "description": "A trait to simplify the creation of proxies or simple facades.",
+    "keywords": ["facade","rapper","wrapper","object"],
+    "homepage": "https://github.com/brightmachine/rapper",
+    "license": "MIT",
+    "require": {
+        "php": ">=5.4"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "1.*"
+    },
+    "config": {
+        "bin-dir": "bin"
+    },
+    "autoload": {
+        "psr-4": {
+            "Brightmachine": "src/"
+        }
+    }
+}
