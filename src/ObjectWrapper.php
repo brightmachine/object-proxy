@@ -23,7 +23,7 @@ trait ObjectWrapper
             );
         }
 
-        $this->targetObject = $o;
+        $this->targetObject = $target;
     }
 
     public function __call ($func, $args = array())
