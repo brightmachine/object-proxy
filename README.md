@@ -2,7 +2,8 @@
 
 ## What is Rapper?
 
-A utility for creating a simple facade-type-thing, with calls to your object being forwarded to a target object by default.
+This trait can help with writing facades where you want some methods to forward on to a target object
+or to create a proxy class, for example if you don't want to reference vendor code from within your domain.
 
 ## Requirements
 
@@ -37,9 +38,6 @@ php composer.phar install
 Rapper is open-sourced software licensed under the MIT License - see the LICENSE file for details
 
 ## Documentation
-
-This trait / abstract class can help with writing facades where you want some methods to forward on to a target object
-or to create a proxy class, for example if you don't want to reference vendor code from within your domain.
 
 Example:
 
