@@ -1,71 +1,148 @@
 <?php namespace BrightMachine;
 
 /**
-* Allows a class to wrap a pre-existing object, passing all unknown calls to the object passed in
-* and returns the returned value.
-*
-* Use case: you have an object returned from Mongo (a document), and you want to wrap that object in
-* a class that implements the domain logic for that object.
-*/
-
+ * Allows a class to wrap a pre-existing object, proxying unknown calls to the target object.
+ *
+ * Class ObjectWrapper
+ * @package BrightMachine
+ * @author Kelvin Jones kelvin@brightmachine.co.uk
+ */
 trait ObjectWrapper
 {
-    private $targetObject;
+    /**
+     * @var object Object to be used to proxy requests to.
+     */
+    private $objectWrapperTargetObject;
+    /**
+     * @var array a map of functions to redirect calls to
+     */
+    private $objectWrapperProxyFunctionMap;
 
-    private function setTargetObject ($target)
+    /**
+     * @param $targetObject
+     * @return mixed the object that you've assigned
+     * @throws \InvalidArgumentException
+     */
+    private function setTargetObject ($targetObject)
     {
-        if (!is_object($target)) {
+        if (!is_object($targetObject)) {
             throw new \InvalidArgumentException(
                 sprintf(
                     '$target must be an object, %s given',
-                    gettype($target)
+                    gettype($targetObject)
                 )
             );
         }
 
-        $this->targetObject = $target;
+        $this->objectWrapperTargetObject = $targetObject;
+        return $this;
     }
 
+    /**
+     * Give the ObjectWrapper an array of methods to map from -> to, e.g:
+     *  ['log' => 'logInfo']
+     *
+     * @param array $proxyFunctionMap
+     * @return $this
+     */
+    private function setProxyFunctionMap (array $proxyFunctionMap)
+    {
+        $this->objectWrapperProxyFunctionMap = $proxyFunctionMap;
+        return $this;
+    }
+
+    /**
+     * @param $func
+     * @param array $args
+     * @return mixed
+     * @throws \BadMethodCallException
+     */
     public function __call ($func, $args = array())
     {
         $this->assertValidTarget();
-        return call_user_func_array([$this->targetObject, $func], $args);
+        $func = $this->resolveFunctionCall($func);
+        if (method_exists($this->objectWrapperTargetObject, $func) || method_exists($this->objectWrapperTargetObject, '__call')) {
+            return call_user_func_array([$this->objectWrapperTargetObject, $func], $args);
+        } else {
+            throw new \BadMethodCallException(sprintf("Attempted to call %s::%s", get_class($this->objectWrapperTargetObject), $func));
+        }
     }
 
+    /**
+     * Check the function map for a different function to use.
+     * @param $func
+     * @return mixed
+     */
+    private function resolveFunctionCall ($func)
+    {
+        if (!$this->objectWrapperProxyFunctionMap) {
+            return $func;
+        }
+
+        if (array_key_exists($func, $this->objectWrapperProxyFunctionMap)) {
+            return $this->objectWrapperProxyFunctionMap[$func];
+        } else {
+            return $func;
+        }
+    }
+
+    /**
+     * @param $name
+     * @param $arguments
+     * @throws \BadMethodCallException
+     */
     public static function __callStatic($name, $arguments)
     {
-        $this->assertValidTarget();
-        return forward_static_call_array([$this->targetObject, $func], $args);
+        throw new \BadMethodCallException('static method calls not supported by BrightMachine\\ObjectWrapper');
     }
 
+    /**
+     * @param $k
+     * @param $v
+     */
     public function __set($k, $v)
     {
         $this->assertValidTarget();
-        $this->targetObject->$k = $v;
+        $this->objectWrapperTargetObject->$k = $v;
     }
 
+    /**
+     * @param $k
+     * @return mixed
+     */
     public function __get($k)
     {
         $this->assertValidTarget();
-        return $this->targetObject->$k;
+        return $this->objectWrapperTargetObject->$k;
     }
 
+    /**
+     * @param $k
+     * @return bool
+     */
     public function __isset($k)
     {
         $this->assertValidTarget();
-        return isset($this->targetObject->$k);
+        return isset($this->objectWrapperTargetObject->$k);
     }
 
+    /**
+     * @param $k
+     * @return null
+     */
     public function __unset($k)
     {
         $this->assertValidTarget();
-        return $this->targetObject->$k = null;
+        return $this->objectWrapperTargetObject->$k = null;
     }
 
+    /**
+     * @throws \UnderflowException
+     */
     private function assertValidTarget ()
     {
-        if (is_null($this->targetObject)) {
-            throw new \UnderflowException('ObjectWrapper target object is null');
+        if (is_null($this->objectWrapperTargetObject)) {
+            throw new \UnderflowException('BrightMachine\\ObjectWrapper target object is null');
         }
     }
 }

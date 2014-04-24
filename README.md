@@ -7,7 +7,7 @@ or to create a proxy class, for example if you don't want to reference vendor co
 
 ## Requirements
 
-- PHP 5.3+
+- PHP 5.4+
 
 ## Installation
 
@@ -39,6 +39,11 @@ Rapper is open-sourced software licensed under the MIT License - see the LICENSE
 
 ## Documentation
 
+Currently this trait allows you to do the following:
+
+1. set the target object for proxying to
+2. define a map of different function names to use
+
 Example:
 
 ```php
@@ -48,7 +53,12 @@ use Monolog\Logger;
 use BrightMachine\ObjectWrapper;
 
 /**
- * Proxy logging through to
+ * Class Logger
+ *
+ * Proxy requests to Monolog/Logger
+ *
+ * @method mixed logMessage($msg) add a debug message
+ * @package Example\Logger
  */
 class Logger
 {
@@ -57,7 +67,10 @@ class Logger
     public function __construct ()
     {
         $target = new Logger('dev', $this->app['events']);
-        $this->setTargetObject($target);
+        $this->setTargetObject($target)
+             ->setProxyFunctionMap([
+                 'logMessage' => 'addDebug'
+             ]);
     }
 }
 ```
