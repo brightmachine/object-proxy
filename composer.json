@@ -1,8 +1,8 @@
 {
-    "name": "brightmachine/rapper",
+    "name": "brightmachine/object-proxy",
     "description": "A trait to simplify the creation of proxies or simple facades.",
-    "keywords": ["facade","rapper","wrapper","object"],
-    "homepage": "https://github.com/brightmachine/rapper",
+    "keywords": ["object", "proxy", "facade","wrapper"],
+    "homepage": "https://github.com/brightmachine/object-proxy",
     "license": "MIT",
     "require": {
         "php": ">=5.4"
@@ -16,6 +16,11 @@
     "autoload": {
         "psr-4": {
             "BrightMachine\\": "src/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
         }
     }
 }

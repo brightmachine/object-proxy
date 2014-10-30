@@ -1,13 +1,12 @@
 <?php namespace BrightMachine;
 
 /**
- * Allows a class to wrap a pre-existing object, proxying unknown calls to the target object.
+ * Allows a class to wrap a pre-existing object & proxy method calls to the target object.
  *
- * Class ObjectWrapper
  * @package BrightMachine
  * @author Kelvin Jones kelvin@brightmachine.co.uk
  */
-trait ObjectWrapper
+trait ObjectProxy
 {
     /**
      * @var object Object to be used to proxy requests to.
@@ -23,7 +22,7 @@ trait ObjectWrapper
      * @return mixed the object that you've assigned
      * @throws \InvalidArgumentException
      */
-    private function setTargetObject ($targetObject)
+    private function setTargetObject($targetObject)
     {
         if (!is_object($targetObject)) {
             throw new \InvalidArgumentException(
@@ -45,7 +44,7 @@ trait ObjectWrapper
      * @param array $proxyFunctionMap
      * @return $this
      */
-    private function setProxyFunctionMap (array $proxyFunctionMap)
+    private function setProxyFunctionMap(array $proxyFunctionMap)
     {
         $this->objectWrapperProxyFunctionMap = $proxyFunctionMap;
         return $this;
@@ -57,7 +56,7 @@ trait ObjectWrapper
      * @return mixed
      * @throws \BadMethodCallException
      */
-    public function __call ($func, $args = array())
+    public function __call($func, $args = array())
     {
         $this->assertValidTarget();
         $func = $this->resolveFunctionCall($func);
@@ -73,7 +72,7 @@ trait ObjectWrapper
      * @param $func
      * @return mixed
      */
-    private function resolveFunctionCall ($func)
+    private function resolveFunctionCall($func)
     {
         if (!$this->objectWrapperProxyFunctionMap) {
             return $func;
@@ -84,16 +83,6 @@ trait ObjectWrapper
         } else {
             return $func;
         }
-    }
-
-    /**
-     * @param $name
-     * @param $arguments
-     * @throws \BadMethodCallException
-     */
-    public static function __callStatic($name, $arguments)
-    {
-        throw new \BadMethodCallException('static method calls not supported by BrightMachine\\ObjectWrapper');
     }
 
     /**
@@ -142,7 +131,7 @@ trait ObjectWrapper
     private function assertValidTarget ()
     {
         if (is_null($this->objectWrapperTargetObject)) {
-            throw new \UnderflowException('BrightMachine\\ObjectWrapper target object is null');
+            throw new \UnderflowException('BrightMachine\\ObjectProxy target object is null');
         }
     }
 }
